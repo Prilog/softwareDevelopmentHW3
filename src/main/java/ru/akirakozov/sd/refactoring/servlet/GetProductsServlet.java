@@ -5,25 +5,27 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.*;
+import java.util.List;
 
-import ru.akirakozov.sd.refactoring.database.DataBaseQuery;
+import ru.akirakozov.sd.refactoring.Product;
+import ru.akirakozov.sd.refactoring.database.DataBaseWorker;
 
 /**
  * @author akirakozov
  */
 public class GetProductsServlet extends HttpServlet {
+    private final DataBaseWorker worker;
+
+    public GetProductsServlet(DataBaseWorker dataBaseWorker) {
+        worker = dataBaseWorker;
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) {
         try {
-            try (Connection c = DriverManager.getConnection("jdbc:sqlite:test.db")) {
-                Statement stmt = c.createStatement();
-                ResultSet rs = stmt.executeQuery(DataBaseQuery.selectAllFromProduct());
-                response.getWriter().println("<html><body>");
-
-                writeResponse(response, stmt, rs);
-            }
-
+            List<Product> products = worker.selectProducts("get");
+            response.getWriter().println("<html><body>");
+            writeResponse(response, products);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -32,15 +34,10 @@ public class GetProductsServlet extends HttpServlet {
         response.setStatus(HttpServletResponse.SC_OK);
     }
 
-    static void writeResponse(HttpServletResponse response, Statement stmt, ResultSet rs) throws SQLException, IOException {
-        while (rs.next()) {
-            String  name = rs.getString("name");
-            int price  = rs.getInt("price");
-            response.getWriter().println(name + "\t" + price + "</br>");
+    static void writeResponse(HttpServletResponse response, List<Product> products) throws IOException {
+        for (Product item : products) {
+            response.getWriter().println(item.name + "\t" + item.price + "</br>");
         }
         response.getWriter().println("</body></html>");
-
-        rs.close();
-        stmt.close();
     }
 }
