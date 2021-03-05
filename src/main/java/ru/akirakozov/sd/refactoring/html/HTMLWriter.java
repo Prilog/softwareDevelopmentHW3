@@ -18,7 +18,7 @@ public class HTMLWriter {
         response.setStatus(HttpServletResponse.SC_OK);
     }
 
-    public void writeResponce(List<String> body) throws IOException {
+    public void writeResponse(List<String> body) throws IOException {
         response.getWriter().println("<html><body>");
         for (String row : body) {
             response.getWriter().println(row);

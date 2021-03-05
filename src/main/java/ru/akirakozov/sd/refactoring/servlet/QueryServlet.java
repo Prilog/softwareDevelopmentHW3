@@ -63,7 +63,7 @@ public class QueryServlet extends HttpServlet {
         } else {
             response.getWriter().println("Unknown command: " + command);
         }
-        new HTMLWriter(response).writeResponce(body);
+        new HTMLWriter(response).writeResponse(body);
     }
 
 }
