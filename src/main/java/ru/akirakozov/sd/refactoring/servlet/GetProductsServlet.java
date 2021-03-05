@@ -4,11 +4,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import ru.akirakozov.sd.refactoring.Product;
 import ru.akirakozov.sd.refactoring.database.DataBaseWorker;
+import ru.akirakozov.sd.refactoring.html.HTMLWriter;
 
 /**
  * @author akirakozov
@@ -21,23 +23,14 @@ public class GetProductsServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        List<Product> products;
         try {
-            List<Product> products = worker.selectProducts("get");
-            response.getWriter().println("<html><body>");
-            writeResponse(response, products);
+            products = worker.selectProducts("get");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-        response.setContentType("text/html");
-        response.setStatus(HttpServletResponse.SC_OK);
-    }
-
-    static void writeResponse(HttpServletResponse response, List<Product> products) throws IOException {
-        for (Product item : products) {
-            response.getWriter().println(item.name + "\t" + item.price + "</br>");
-        }
-        response.getWriter().println("</body></html>");
+        new HTMLWriter(response).writeResponce(products.stream().
+                map(item -> item.name + "\t" + item.price + "</br>").collect(Collectors.toList()));
     }
 }
