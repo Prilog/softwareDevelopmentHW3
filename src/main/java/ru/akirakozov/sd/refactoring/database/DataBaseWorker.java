@@ -69,7 +69,7 @@ public class DataBaseWorker {
         }
     }
 
-    public Long agregateProducts(String query) throws SQLException {
+    public Long aggregateProducts(String query) throws SQLException {
         try (Connection c = DriverManager.getConnection(database)) {
             Statement stmt = c.createStatement();
             ResultSet rs;

@@ -48,14 +48,14 @@ public class QueryServlet extends HttpServlet {
             }
         } else if ("sum".equals(command)) {
             try {
-                Long result = worker.agregateProducts("sum");
+                Long result = worker.aggregateProducts("sum");
                 body.add("Summary price: " + (result == null ? "" : result));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         } else if ("count".equals(command)) {
             try {
-                Long result = worker.agregateProducts("count");
+                Long result = worker.aggregateProducts("count");
                 body.add("Number of products: " + (result == null ? "" : result));
             } catch (Exception e) {
                 throw new RuntimeException(e);
