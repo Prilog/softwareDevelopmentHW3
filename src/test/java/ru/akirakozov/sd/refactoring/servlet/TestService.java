@@ -26,7 +26,7 @@ public class TestService {
     Thread serverThread;
 
     @BeforeEach
-    public void establish() {
+    public void establish() throws SQLException {
         if (!setUpDone) {
             try (Connection c = DriverManager.getConnection("jdbc:sqlite:" + testDatabaseName)) {
                 String clear = DataBaseQuery.clearTable();
@@ -34,9 +34,6 @@ public class TestService {
 
                 stmt.executeUpdate(clear);
                 stmt.close();
-            } catch (SQLException e) {
-                System.out.println(e);
-                fail();
             }
             setUpDone = true;
         }
@@ -55,12 +52,9 @@ public class TestService {
         serverThread.interrupt();
     }
 
-    @Test
-    @Order(1)
-    @DisplayName("Test add query")
-    public void addQuery() {
+    private void testReq(String req, String res) {
         try {
-            URL query = new URL("http://localhost:8081/add-product?name=iphone6&price=300");
+            URL query = new URL(req);
             URLConnection connection = query.openConnection();
             BufferedReader in = new BufferedReader(new InputStreamReader(
                     connection.getInputStream()));
@@ -69,111 +63,89 @@ public class TestService {
             while ((inputLine = in.readLine()) != null)
                 result.append(inputLine);
             in.close();
-            assertEquals("OK", result.toString());
+            assertEquals(res, result.toString());
         } catch (IOException e) {
             fail();
         }
+    }
+
+    @Test
+    @Order(1)
+    @DisplayName("Test add query")
+    public void addQuery() {
+        testReq("http://localhost:8081/add-product?name=iphone6&price=300", "OK");
     }
 
     @Test
     @Order(2)
     @DisplayName("Test get query")
     public void getQuery() {
-        try {
-            URL get = new URL("http://localhost:8081/get-products");
-            URLConnection getConnection = get.openConnection();
-            BufferedReader in = new BufferedReader(new InputStreamReader(
-                    getConnection.getInputStream()));
-            String inputLine;
-            StringBuilder result = new StringBuilder();
-            while ((inputLine = in.readLine()) != null)
-                result.append(inputLine);
-            in.close();
-            assertEquals("<html><body>iphone6\t300</br></body></html>", result.toString());
-        } catch (IOException e) {
-            fail();
-        }
+        testReq("http://localhost:8081/get-products", "<html><body>iphone6\t300</br></body></html>");
     }
 
     @Test
     @Order(3)
     @DisplayName("Test sum query")
     public void sumQuery() {
-        try {
-            URL sum = new URL("http://localhost:8081/query?command=sum");
-            URLConnection getConnection = sum.openConnection();
-            BufferedReader in = new BufferedReader(new InputStreamReader(
-                    getConnection.getInputStream()));
-            String inputLine;
-            StringBuilder result = new StringBuilder();
-            while ((inputLine = in.readLine()) != null)
-                result.append(inputLine);
-            in.close();
-            assertEquals("<html><body>Summary price: 300</body></html>", result.toString());
-        } catch (IOException e) {
-            fail();
-        }
+        testReq("http://localhost:8081/query?command=sum", "<html><body>Summary price: 300</body></html>");
     }
 
     @Test
     @Order(4)
     @DisplayName("Test max query")
     public void maxQuery() {
-        try {
-            URL max = new URL("http://localhost:8081/query?command=max");
-            URLConnection getConnection = max.openConnection();
-            BufferedReader in = new BufferedReader(new InputStreamReader(
-                    getConnection.getInputStream()));
-            String inputLine;
-            StringBuilder result = new StringBuilder();
-            while ((inputLine = in.readLine()) != null)
-                result.append(inputLine);
-            in.close();
-            assertEquals("<html><body><h1>Product with max price: </h1>iphone6\t300</br></body></html>",
-                    result.toString());
-        } catch (IOException e) {
-            fail();
-        }
+        testReq("http://localhost:8081/query?command=max",
+                "<html><body><h1>Product with max price: </h1>iphone6\t300</br></body></html>");
     }
 
     @Test
     @Order(5)
     @DisplayName("Test min query")
     public void minQuery() {
-        try {
-            URL min = new URL("http://localhost:8081/query?command=min");
-            URLConnection getConnection = min.openConnection();
-            BufferedReader in = new BufferedReader(new InputStreamReader(
-                    getConnection.getInputStream()));
-            String inputLine;
-            StringBuilder result = new StringBuilder();
-            while ((inputLine = in.readLine()) != null)
-                result.append(inputLine);
-            in.close();
-            assertEquals("<html><body><h1>Product with min price: </h1>iphone6\t300</br></body></html>",
-                    result.toString());
-        } catch (IOException e) {
-            fail();
-        }
+        testReq("http://localhost:8081/query?command=min",
+                "<html><body><h1>Product with min price: </h1>iphone6\t300</br></body></html>");
     }
 
     @Test
     @Order(6)
     @DisplayName("Test count query")
     public void countQuery() {
-        try {
-            URL count = new URL("http://localhost:8081/query?command=count");
-            URLConnection getConnection = count.openConnection();
-            BufferedReader in = new BufferedReader(new InputStreamReader(
-                    getConnection.getInputStream()));
-            String inputLine;
-            StringBuilder result = new StringBuilder();
-            while ((inputLine = in.readLine()) != null)
-                result.append(inputLine);
-            in.close();
-            assertEquals("<html><body>Number of products: 1</body></html>", result.toString());
-        } catch (IOException e) {
-            fail();
-        }
+        testReq("http://localhost:8081/query?command=count",
+                "<html><body>Number of products: 1</body></html>");
+    }
+
+    @Test
+    @Order(7)
+    @DisplayName("Multi add query")
+    public void multiAdd() {
+        testReq("http://localhost:8081/add-product?name=iphone7&price=600", "OK");
+        testReq("http://localhost:8081/add-product?name=iphone8&price=900", "OK");
+        testReq("http://localhost:8081/add-product?name=iphone9&price=900", "OK");
+        testReq("http://localhost:8081/add-product?name=iphone10&price=900", "OK");
+    }
+
+    @Test
+    @Order(8)
+    @DisplayName("Big get query")
+    public void bigGet() {
+        testReq("http://localhost:8081/get-products",
+                "<html><body>iphone6\t300</br>iphone7\t600</br>iphone8\t900</br>iphone9\t900</br>" +
+                        "iphone10\t900</br></body></html>");
+    }
+
+    @Test
+    @Order(9)
+    @DisplayName("Big max query")
+    public void bigMax() {
+        testReq("http://localhost:8081/query?command=max",
+                "<html><body><h1>Product with max price: </h1>iphone8\t900</br></body></html>");
+    }
+
+    @Test
+    @Order(10)
+    @DisplayName("Big count query")
+    public void bigCount() {
+        testReq("http://localhost:8081/query?command=count",
+                "<html><body>Number of products: 5</body></html>");
     }
 }
