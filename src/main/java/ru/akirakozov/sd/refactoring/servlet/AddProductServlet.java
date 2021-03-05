@@ -8,7 +8,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
 
-import ru.akirakozov.sd.refactoring.database.DataBase;
+import ru.akirakozov.sd.refactoring.database.DataBaseQuery;
 
 /**
  * @author akirakozov
@@ -22,7 +22,7 @@ public class AddProductServlet extends HttpServlet {
 
         try {
             try (Connection c = DriverManager.getConnection("jdbc:sqlite:test.db")) {
-                String sql = DataBase.insertIntoProduct(name, price);
+                String sql = DataBaseQuery.insertIntoProduct(name, price);
                 Statement stmt = c.createStatement();
                 stmt.executeUpdate(sql);
                 stmt.close();

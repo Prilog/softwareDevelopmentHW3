@@ -1,11 +1,15 @@
 package ru.akirakozov.sd.refactoring.database;
 
-public class DataBase {
+public class DataBaseQuery {
     public static String createTable() {
         return "CREATE TABLE IF NOT EXISTS PRODUCT" +
                 "(ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL," +
                 " NAME           TEXT    NOT NULL, " +
                 " PRICE          INT     NOT NULL)";
+    }
+
+    public static String clearTable() {
+        return "DELETE FROM PRODUCT";
     }
 
     public static String insertIntoProduct(String name, Long price) {
