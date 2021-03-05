@@ -1,5 +1,7 @@
 package ru.akirakozov.sd.refactoring.servlet;
 
+import ru.akirakozov.sd.refactoring.database.DataBase;
+
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -21,7 +23,7 @@ public class QueryServlet extends HttpServlet {
             try {
                 try (Connection c = DriverManager.getConnection("jdbc:sqlite:test.db")) {
                     Statement stmt = c.createStatement();
-                    ResultSet rs = stmt.executeQuery("SELECT * FROM PRODUCT ORDER BY PRICE DESC LIMIT 1");
+                    ResultSet rs = stmt.executeQuery(DataBase.selectFromProductWithMaxPrice());
                     response.getWriter().println("<html><body>");
                     response.getWriter().println("<h1>Product with max price: </h1>");
 
@@ -43,7 +45,7 @@ public class QueryServlet extends HttpServlet {
             try {
                 try (Connection c = DriverManager.getConnection("jdbc:sqlite:test.db")) {
                     Statement stmt = c.createStatement();
-                    ResultSet rs = stmt.executeQuery("SELECT * FROM PRODUCT ORDER BY PRICE LIMIT 1");
+                    ResultSet rs = stmt.executeQuery(DataBase.selectFromProductWithMinPrice());
                     response.getWriter().println("<html><body>");
                     response.getWriter().println("<h1>Product with min price: </h1>");
 
@@ -65,7 +67,7 @@ public class QueryServlet extends HttpServlet {
             try {
                 try (Connection c = DriverManager.getConnection("jdbc:sqlite:test.db")) {
                     Statement stmt = c.createStatement();
-                    ResultSet rs = stmt.executeQuery("SELECT SUM(price) FROM PRODUCT");
+                    ResultSet rs = stmt.executeQuery(DataBase.sumPrice());
                     response.getWriter().println("<html><body>");
                     response.getWriter().println("Summary price: ");
 
@@ -85,7 +87,7 @@ public class QueryServlet extends HttpServlet {
             try {
                 try (Connection c = DriverManager.getConnection("jdbc:sqlite:test.db")) {
                     Statement stmt = c.createStatement();
-                    ResultSet rs = stmt.executeQuery("SELECT COUNT(*) FROM PRODUCT");
+                    ResultSet rs = stmt.executeQuery(DataBase.countProduct());
                     response.getWriter().println("<html><body>");
                     response.getWriter().println("Number of products: ");
 

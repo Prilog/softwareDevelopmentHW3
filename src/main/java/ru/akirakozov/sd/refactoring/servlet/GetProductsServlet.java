@@ -9,6 +9,8 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
+import ru.akirakozov.sd.refactoring.database.DataBase;
+
 /**
  * @author akirakozov
  */
@@ -19,7 +21,7 @@ public class GetProductsServlet extends HttpServlet {
         try {
             try (Connection c = DriverManager.getConnection("jdbc:sqlite:test.db")) {
                 Statement stmt = c.createStatement();
-                ResultSet rs = stmt.executeQuery("SELECT * FROM PRODUCT");
+                ResultSet rs = stmt.executeQuery(DataBase.selectAllFromProduct());
                 response.getWriter().println("<html><body>");
 
                 while (rs.next()) {
